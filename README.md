@@ -1,4 +1,4 @@
 # Purpose
-This program uses an SMTP server in order to remotely send emails by running the script.
+This program uses an SMTP server to remotely send emails by running a Python script.
 
-You dictate the recipient of the email and customize the subject and body and also attach files.
+You choose the recipient of the email, write the subject and body, and attach files.
