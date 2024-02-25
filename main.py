@@ -1,37 +1,42 @@
+"""In order for this program to function, you will preferably create another dummy Gmail account and enable 2FA and app
+passwords in Google Account settings. After creating an app you will receive a 16-digit password which is what you will
+set SENDER_PASS equal to in your .env file."""
+
+from dotenv import load_dotenv
 import os
 from email.message import EmailMessage
 import imghdr
 import smtplib
 import threading
-import time
 
-# gets the sender's address and password
-address = os.environ.get('sender_mail')
-password = os.environ.get('sender_pass')
-# msg will have attributes added on it later on
-msg = EmailMessage()
+load_dotenv()
+
+# gets the address and password for the sender email
+SENDER_MAIL = os.getenv('SENDER_MAIL')
+SENDER_PASS = os.getenv('SENDER_PASS')
 
 
-def create_email(recipient):
+def create_email(target, subject, body) -> EmailMessage:
     """Adds the
     subject
     from, to, and body attributes to the email message"""
-    
-    msg['Subject'] = input("\nPlease type the subject of the email: ")
-    msg['From'] = address
-    msg['To'] = recipient
-    body = input("\nPlease type the body of the email: ")
 
+    msg = EmailMessage()
+    msg['To'] = target
+    msg['Subject'] = subject
+    msg['From'] = SENDER_MAIL
     msg.set_content(body)
 
+    return msg
 
-def add_image():
+
+def add_image(msg: EmailMessage):
     """Prompts the user to enter an image name and proceeds to append it to the existing email message
     Image data must be read in read-binary,
-    The full image name is needed, such as image.jpg"""
+    The full image name is needed, such as image.jpg, and it must be within the project directory."""
 
     try:
-        file_name = input("\nType the image's full name (ex. image.png, picture.jpg): ")
+        file_name = input("Type the image's full name (ex. image.png, picture.jpg): ")
         with open(file_name, 'rb') as f:
             img_data = f.read()
             img_type = imghdr.what(f.name)
@@ -44,7 +49,7 @@ def add_image():
         quit()
 
 
-def send_email(spam=False, thread=None):
+def send_email(msg: EmailMessage, spam=False, thread=None):
     """This function:
     connects to an SMTP server,
     encrypts message with TLS,
@@ -57,16 +62,15 @@ def send_email(spam=False, thread=None):
     try:
         server = smtplib.SMTP(host='smtp.gmail.com', port=587)
         server.ehlo()
-        server.set_debuglevel(1)
         server.starttls()
         server.ehlo()
-        server.login(address, password)
+        server.login(SENDER_MAIL, SENDER_PASS)
         server.send_message(msg)
 
         if not spam:
             print("\nEmail has been sent.")
         if spam:
-            print(f"Email {thread+1} has been sent.")
+            print(f"Email {thread + 1} has been sent.")
 
         server.quit()
 
@@ -78,41 +82,18 @@ def send_email(spam=False, thread=None):
         quit()
 
 
-def send_spam():
-    """This function:
-    prompts user for number of emails to be sent,
-    creates as many Thread() instances as the user requested,
-    starts each thread via for loop with half-second delay
-    joins each thread via for loop,
-
-    each thread executes send_mail(spam=True, thread=t)
-    and is created via list comprehension"""
-
-    num = int(input("\nType the number of emails the recipient will receive: "))
-
-    threads = [threading.Thread(target=send_email, args=(True, t), daemon=True) for t in range(num)]
-
-    for thread in threads:
-        thread.start()
-        # time.sleep(0.5)
-
-    for thread in threads:
-        thread.join()
-
-
 def main():
-    target = input("\nType the recipient's full gmail (ex. johndoe@gmail.com): ")
-    create_email(target)
+    mail_target = input("Type the recipient of your email (ex. 'johndoe@gmail.com'): ")
+    mail_subject = input("Type the the subject of your email: ")
+    mail_body = input("Type the body of your email:\n")
+
+    email = create_email(mail_target, mail_subject, mail_body)
 
     is_attachment = input("\nWould you like to attach an image to the email? [y/n]: ")
     if is_attachment == "y":
-        add_image()
+        add_image(email)
 
-    is_spam = input("\nWould you like to spam the recipient? [y/n]: ")
-    if is_spam == "y":
-        send_spam()
-    else:
-        send_email()
+    send_email(email)
 
 
 if __name__ == "__main__":
