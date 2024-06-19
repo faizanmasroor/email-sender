@@ -22,13 +22,11 @@ def create_email(recipient, subject, body) -> EmailMessage:
 
 
 # If the user wants to add an image, this function is called; it asks for the  # TODO: Finish comment
-def add_image(msg: EmailMessage):
+def add_image(msg: EmailMessage, file_name):
     """Prompts the user to enter an image name and proceeds to append it to the existing email message
     Image data must be read in read-binary,
     The full image name is needed, such as image.jpg, and it must be within the project directory."""
     try:
-        file_name = input("Type the image's full name with its relative location of the script (ex. image.png,"
-                          "picture.jpg, ../../graph.svg, ../MyPhotos/dog.png, etc): ")
         with open(file_name, 'rb') as f:
             img_data = f.read()
             img_type = imghdr.what(f.name)
@@ -36,10 +34,13 @@ def add_image(msg: EmailMessage):
 
             msg.add_attachment(img_data, maintype='image', subtype=img_type, filename=img_name)
 
-        print("\nImage successfully added.")
+        print("Image successfully added.\n")
 
     except FileNotFoundError:
-        print("\nThe file you typed does not exist.")
+        print("The file you typed does not exist.\n")
+
+    except TypeError:
+        print("Invalid file format.\n")
 
 
 def send_email(msg: EmailMessage):
@@ -73,18 +74,20 @@ def send_email(msg: EmailMessage):
 
 
 def main():
-    mail_recipient = input("Type the recipient of your email (ex. 'johndoe@gmail.com'): ")
-    mail_subject = input("Type the the subject of your email: ")
-    mail_body = input("Type the body of your email:\n")
+    mail_recipient = input("\nEnter the recipient your email (ex. 'johndoe@gmail.com'):\n>>> ")
+    mail_subject = input("\nEnter the subject of your email:\n>>> ")
+    mail_body = input("\nEnter the body of your email:\n>>> ")
 
     email = create_email(mail_recipient, mail_subject, mail_body)
 
+    print("""\nIf you wish to attach images, enter your files one by one.
+Be sure to enter the relative location of each image (ex., "image.png", "../picture.jpg", "../data/graph.svg", etc.)
+Once you are done, enter "exit\".""")
     while True:
-        is_attachment = input("\nWould you like to attach an image to the email? [y/n]: ")
-        if is_attachment == "y":
-            add_image(email)
-            continue
-        break
+        img_name = input(">>> ")
+        if img_name.lower() == 'exit':
+            break
+        add_image(email, img_name)
 
     send_email(email)
 
