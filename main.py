@@ -1,24 +1,19 @@
-"""In order for this program to function, you will preferably create another dummy Gmail account and enable 2FA and app
-passwords in Google Account settings. After creating an app you will receive a 16-digit password which is what you will
-set SENDER_PASS equal to in your .env file."""
+"""Refer to README.md before using this program."""
 
-import os
 from email.message import EmailMessage
+from os import environ
+
 import imghdr
 import smtplib
 
-# gets the address and password for the sender email
-print(os.environ['SENDER_PASS'])
-quit()
+sender_mail = environ['SENDER_MAIL']
+sender_pass = environ['SENDER_PASS']
 
 
-def create_email(target, subject, body) -> EmailMessage:
-    """Adds the
-    subject
-    from, to, and body attributes to the email message"""
-
+# Creates an EmailMessage object with the basic elements of an email
+def create_email(recipient, subject, body) -> EmailMessage:
     msg = EmailMessage()
-    msg['To'] = target
+    msg['To'] = recipient
     msg['Subject'] = subject
     msg['From'] = sender_mail
     msg.set_content(body)
@@ -26,13 +21,14 @@ def create_email(target, subject, body) -> EmailMessage:
     return msg
 
 
+# If the user wants to add an image, this function is called; it asks for the  # TODO: Finish comment
 def add_image(msg: EmailMessage):
     """Prompts the user to enter an image name and proceeds to append it to the existing email message
     Image data must be read in read-binary,
     The full image name is needed, such as image.jpg, and it must be within the project directory."""
-
     try:
-        file_name = input("Type the image's full name (ex. image.png, picture.jpg): ")
+        file_name = input("Type the image's full name with its relative location of the script (ex. image.png,"
+                          "picture.jpg, ../../graph.svg, ../MyPhotos/dog.png, etc): ")
         with open(file_name, 'rb') as f:
             img_data = f.read()
             img_type = imghdr.what(f.name)
@@ -40,12 +36,13 @@ def add_image(msg: EmailMessage):
 
             msg.add_attachment(img_data, maintype='image', subtype=img_type, filename=img_name)
 
+        print("\nImage successfully added.")
+
     except FileNotFoundError:
         print("\nThe file you typed does not exist.")
-        quit()
 
 
-def send_email(msg: EmailMessage, spam=False, thread=None):
+def send_email(msg: EmailMessage):
     """This function:
     connects to an SMTP server,
     encrypts message with TLS,
@@ -63,10 +60,7 @@ def send_email(msg: EmailMessage, spam=False, thread=None):
         server.login(sender_mail, sender_pass)
         server.send_message(msg)
 
-        if not spam:
-            print("\nEmail has been sent.")
-        if spam:
-            print(f"Email {thread + 1} has been sent.")
+        print("\nEmail has been sent.")
 
         server.quit()
 
@@ -79,15 +73,18 @@ def send_email(msg: EmailMessage, spam=False, thread=None):
 
 
 def main():
-    mail_target = input("Type the recipient of your email (ex. 'johndoe@gmail.com'): ")
+    mail_recipient = input("Type the recipient of your email (ex. 'johndoe@gmail.com'): ")
     mail_subject = input("Type the the subject of your email: ")
     mail_body = input("Type the body of your email:\n")
 
-    email = create_email(mail_target, mail_subject, mail_body)
+    email = create_email(mail_recipient, mail_subject, mail_body)
 
-    is_attachment = input("\nWould you like to attach an image to the email? [y/n]: ")
-    if is_attachment == "y":
-        add_image(email)
+    while True:
+        is_attachment = input("\nWould you like to attach an image to the email? [y/n]: ")
+        if is_attachment == "y":
+            add_image(email)
+            continue
+        break
 
     send_email(email)
 
