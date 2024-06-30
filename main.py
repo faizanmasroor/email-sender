@@ -1,5 +1,3 @@
-"""Refer to README.md before using this program."""
-
 from email.message import EmailMessage
 from os import environ
 
@@ -10,7 +8,7 @@ sender_mail = environ['SENDER_MAIL']
 sender_pass = environ['SENDER_PASS']
 
 
-# Creates an EmailMessage object with the basic elements of an email
+# Creates an EmailMessage object with the recipient email, subject line, and body (as parameters)
 def create_email(recipient, subject, body) -> EmailMessage:
     msg = EmailMessage()
     msg['To'] = recipient
@@ -21,11 +19,9 @@ def create_email(recipient, subject, body) -> EmailMessage:
     return msg
 
 
-# If the user wants to add an image, this function is called; it asks for the  # TODO: Finish comment
+# Appends an image file to an existing EmailMessage object; it tries to open the requested file and append it to the
+# email. Error handling for absent file in current directory and non-picture filetype is included
 def add_image(msg: EmailMessage, file_name):
-    """Prompts the user to enter an image name and proceeds to append it to the existing email message
-    Image data must be read in read-binary,
-    The full image name is needed, such as image.jpg, and it must be within the project directory."""
     try:
         with open(file_name, 'rb') as f:
             img_data = f.read()
@@ -43,16 +39,9 @@ def add_image(msg: EmailMessage, file_name):
         print("Invalid file format.\n")
 
 
+# Establishes a session with Gmail's SMTP port, starts TLS encryption, logs into sender email account,
+# and sends EmailMessage to server. Error handling for a failed log-in and nonexistent recipient email is included
 def send_email(msg: EmailMessage):
-    """This function:
-    connects to an SMTP server,
-    encrypts message with TLS,
-    logs into the sender's Gmail,
-    sends email message (which has Subject, From, To, Body),
-
-    spam and thread parameters are only set to True and int when:
-    the spam() function is called and Thread() instances offset these args"""
-
     try:
         server = smtplib.SMTP(host='smtp.gmail.com', port=587)
         server.ehlo()
@@ -73,6 +62,8 @@ def send_email(msg: EmailMessage):
         quit()
 
 
+# Prompts for recipient email, subject line, and body; all info is crafted into an EmailMessage. Prompts for image
+# attachments and quits once "done" is entered. Calls send_email() on the EmailMessage
 def main():
     mail_recipient = input("\nEnter the recipient your email (ex. 'johndoe@gmail.com'):\n>>> ")
     mail_subject = input("\nEnter the subject of your email:\n>>> ")
@@ -82,10 +73,10 @@ def main():
 
     print("""\nIf you wish to attach images, enter your files one by one.
 Be sure to enter the relative location of each image (ex., "image.png", "../picture.jpg", "../data/graph.svg", etc.)
-Once you are done, enter "exit\".""")
+Once you are done, enter "done\".""")
     while True:
         img_name = input(">>> ")
-        if img_name.lower() == 'exit':
+        if img_name.lower() == 'done':
             break
         add_image(email, img_name)
 
