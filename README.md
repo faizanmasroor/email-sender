@@ -30,16 +30,17 @@ https://github.com/faizanmasroor/email-sender/assets/107204129/0ac50533-24b1-443
 
 ## Methodology
 
-* Get the username and password of the user's email (which is used to send emails) from environment variables
-* Generate an EmailMessage object (from email.message) to craft an email and append features
+* Retrieve the username and password of the user's email from environment variables
+* Generate an EmailMessage object (from Python's Standard Library, "email")
 * Prompt the user for the email's recipient, subject, and body
-* Prompt the user for however many images they wish to attach to their email
-  * Use the built-in add_attachment method in EmailMessage to attach the image to the email
+* Add the attributes above to the email
+* Prompt the user to add any images to the email
+  * Use the built-in add_attachment() method of EmailMessage to attempt to attach image files in the current directory to the email
 * Send the email via SMTP (port 587)
-  * Establish a connection to Gmail's SMTP server
-  * Enable the TLS protocol
+  * Establish a connection to Gmail's SMTP server (smtp.gmail.com)
+  * Enable TLS
   * Log into the user's Gmail account
-  * Send an email message to the server
-  * Close connection
+  * Send the email message to the Gmail's server
+  * Terminate the connection
 
 [^1]: The module imghdr (a library used in the script) will be supported with Python ≥3.13; aside from this, there are no other dependency constraints.
