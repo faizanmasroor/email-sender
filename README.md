@@ -1,56 +1,45 @@
 # :mailbox: SMTP Gmail Script :mailbox:
 
-#### A straightforward Python script that generates and downloads line graphs of the historical high prices of any stock, per user request.
+#### A Python script that can automate sending emails, featuring dynamically entered attributes (email recipient, subject line, email body) and image attachments.
 
 ## Installation and Usage
 
 #### 1. [Clone](https://docs.github.com/articles/cloning-a-repository) the repository
 ```powershell
-git clone https://github.com/faizanmasroor/stock-grapher.git
+git clone https://github.com/faizanmasroor/email-sender.git
 ```
-#### 2. Navigate to the repository folder with your CLI of choice
+#### 2. Turn on [2-Step Verification](https://myaccount.google.com/signinoptions/twosv) for the Google account you will be using to send emails
+#### 3. Generate an [app password](https://myaccount.google.com/apppasswords) for your Google account
+#### 4. Type "Edit environment variables for your account" in the Windows search bar and open the Environment Variables window
+#### 5. Create the "SENDER_MAIL" and "SENDER_PASS" user variables as shown
+![image](https://github.com/faizanmasroor/email-sender/assets/107204129/4890c7f7-b9ec-4e83-982e-967e104eea64)
+#### 6. Open your CLI and use Python to [run](https://docs.python.org/3/using/cmdline.html) the script within the repository; answer the prompts that follow
 ```powershell
-cd stock-grapher
-```
-#### 3. [Run](https://docs.python.org/3/using/cmdline.html) the file using Python
-```powershell
-python stock_grapher.py
+python email-sender/email_sender.py
 ```
 
-## Required Dependencies[^1]
+## Required Dependencies
 
-* Python 3.12.4
-* matplotlib 3.8.4
-* NumPy 2.0.0
-* Pandas 2.2.2
-* Seaborn 0.13.2
-* yfinance 0.2.40
+* Python <3.13[^1]
 
 ## Video Demo
-https://github.com/faizanmasroor/stock-grapher/assets/107204129/e7e0c289-0b7e-4f42-b416-ec8bcce25256
+https://github.com/faizanmasroor/email-sender/assets/107204129/0ac50533-24b1-4431-823e-ba2508ec7e5b
 
 ## Goal
-<b> Present graphs to visualize any stock's historical high price on two scales: </b>
-1) The current month, with prices for every day
-2) The last trading day, with prices for every 30 minutes
+<b> To create and send an email with customizable input—including recipient email, subject line, email body, and image attachments—from a Gmail account, whose username and password are declared as environment variables </b>
 
 ## Methodology
 
-* Prompt the user to enter a stock ticker symbol
-* Create a yfinance Ticker object with the user's stock
-* Use the Ticker's history method to generate long-term and short-term Pandas DataFrames
-  * Month DataFrame (long-term) → last 3 months with records for each day
-  * Day DataFrame (short-term) → last 5 days with records for every 30 minutes
-* Remove all price columns from both DataFrames, except for the stock's "High" price
-* Generate additional date and time columns in DataFrames (Year, Month, Day, Hour, etc.)
-* Filter the DataFrames only to include[^2]:
-  * Month DataFrame → data belonging to the last trading day's month
-  * Day DataFrame → data belonging to the last trading day
-* Generate and calculate values for a new column in the Day DataFrame called "DecimalHour"[^3]
-* Plot, display, and save Seaborn line graphs for both DataFrames
-  * Month DataFrame → (X: Day, Y: High Price)
-  * Day DataFrame → (X: DecimalHour, Y: High Price)
+* Get the username and password of the user's email (which is used to send emails) from environment variables
+* Generate an EmailMessage object (from email.message) to craft an email and append features
+* Prompt the user for the email's recipient, subject, and body
+* Prompt the user for however many images they wish to attach to their email
+  * Use the built-in add_attachment method in EmailMessage to attach the image to the email
+* Send the email via SMTP (port 587)
+  * Establish a connection to Gmail's SMTP server
+  * Enable the TLS protocol
+  * Log into the user's Gmail account
+  * Send an email message to the server
+  * Close connection
 
-[^1]: These are the versions the program was tested with; running the usual pip/conda installation commands without specifying package versions will likely not cause any dependency issues.
-[^2]: This is accomplished by reverse indexing each DataFrame and decrementing the index while the row 'Day' at said index matches the current date. Then, conditional expressions are used to select a subset of the original data, thus removing all rows that do not match the month or day (depending on which DataFrame filter_data() is called on) of those that belong to the row arrived at from the previous operation (conditional reverse indexing is used to locate the last trading day).
-[^3]: The values for 'DecimalHour' are 0.5 greater than the 'Hour' value in rows where the 'Minutes' value is 30, otherwise, it is equal to the 'Hour' value.
+[^1]: The module imghdr (a library used in the script) will be supported with Python ≥3.13; aside from this, there are no other dependency constraints.
