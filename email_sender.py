@@ -1,7 +1,6 @@
 from email.message import EmailMessage
 from os import environ
 
-import imghdr
 import smtplib
 
 sender_mail = environ['SENDER_MAIL']
@@ -25,7 +24,7 @@ def add_image(msg: EmailMessage, file_name):
     try:
         with open(file_name, 'rb') as f:
             img_data = f.read()
-            img_type = imghdr.what(f.name)
+            img_type = f.name.split('.')[-1]
             img_name = f.name
 
             msg.add_attachment(img_data, maintype='image', subtype=img_type, filename=img_name)
