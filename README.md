@@ -26,7 +26,7 @@ python email-sender/email_sender.py
 https://github.com/faizanmasroor/email-sender/assets/107204129/0ac50533-24b1-4431-823e-ba2508ec7e5b
 
 ## Goal
-<b> To create and send an email with customizable input—including recipient email, subject line, email body, and image attachments—from a Gmail account, whose username and password are declared as environment variables </b>
+**To create and send an email with customizable input—including recipient email, subject line, email body, and image attachments—from a Gmail account, whose username and password are declared as environment variables**
 
 ## Methodology
 
@@ -43,5 +43,5 @@ https://github.com/faizanmasroor/email-sender/assets/107204129/0ac50533-24b1-443
   * Send the email message to the Gmail's server
   * Terminate the connection
 
-[^1]: I would <b> HIGHLY </b> advise against using your primary Gmail account to run this script. Preferably, create an alt/throwaway Gmail account for automating your emails.
+[^1]: I would **HIGHLY** advise against using your primary Gmail account to run this script. Preferably, create an alt/throwaway Gmail account for automating your emails.
 [^2]: The module imghdr (a library used in the script) will be supported with Python ≥3.13; aside from this, there are no other dependency constraints.
