@@ -1,6 +1,6 @@
 # :mailbox: SMTP Gmail Script :mailbox:
 
-#### A Python script that can automate sending emails, featuring dynamically entered attributes (email recipient, subject line, email body) and image attachments.
+#### A Python script for email automation, featuring dynamically entered attributes (email recipient, subject line, email body), image attachments, and sending email through Gmail's SMTP server.
 
 ## Installation and Usage
 
